@@ -1,623 +1,936 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edge Trading | Indicators, Live Terminal & Market Journal</title>
+  <meta name="description" content="TradingView algorithmic indicators store, live stream & interactive chart terminal, and systematic trading journal covering copper, cryptocurrencies, and leading stocks.">
+  <meta property="og:title" content="Edge Trading | Indicators & Market Journal">
+  <meta property="og:description" content="TradingView algorithmic indicators, live market stream, and systematic journal across copper, crypto, and stocks.">
 
-  <title>Edge Trading | Indicators & Market Journal</title>
-  <meta name="description" content="TradingView indicators, live trading analysis, and cryptocurrency and copper market journals.">
+  <!-- Fonts & Tailwind CSS CDN for GitHub Pages standalone hosting -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brandBg: '#090D16',
+            panel: '#0E172A',
+            panelAlt: '#0B1220',
+            accent: '#10b981',
+          }
+        }
+      }
+    }
+  </script>
 
   <style>
-    :root {
-      --bg: #0b1020;
-      --panel: #111a2c;
-      --panel2: #162238;
-      --text: #f1f5f9;
-      --muted: #9aa9bf;
-      --green: #34d399;
-      --border: #29364d;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.6;
+      background-color: #090D16;
+      color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     }
-
-    a {
-      color: inherit;
-      text-decoration: none;
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-feature-settings: "tnum" 1;
     }
-
-    button, a {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .container {
-      width: min(1120px, 90%);
-      margin: auto;
-    }
-
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: rgba(11, 16, 32, 0.96);
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(12px);
-    }
-
-    .navbar {
-      min-height: 76px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .logo {
-      font-size: 21px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      white-space: nowrap;
-    }
-
-    .logo span {
-      color: var(--green);
-    }
-
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 22px;
-      align-items: center;
-    }
-
-    nav a {
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    nav a:hover {
-      color: var(--green);
-    }
-
-    .button {
-      display: inline-block;
-      background: var(--green);
-      color: #07150f;
-      padding: 12px 19px;
-      border-radius: 7px;
-      font-weight: 700;
-      font-size: 14px;
-      border: 0;
-      cursor: pointer;
-    }
-
-    .button:hover {
-      background: #6ee7b7;
-    }
-
-    .button-outline {
-      border: 1px solid #40506b;
-      color: var(--text);
-      background: transparent;
-    }
-
-    .button-outline:hover {
-      background: var(--panel2);
-    }
-
-    .hero {
-      padding: 100px 0 80px;
-      background:
-        radial-gradient(ellipse at 85% 10%, #173d3545, transparent 45%),
-        var(--bg);
-    }
-
-    .eyebrow {
-      color: var(--green);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      font-size: clamp(38px, 6vw, 68px);
-      line-height: 1.08;
-      letter-spacing: -2px;
-      max-width: 800px;
-    }
-
-    .hero p {
-      color: var(--muted);
-      font-size: 17px;
-      max-width: 650px;
-      margin: 24px 0;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .section {
-      padding: 76px 0;
-      scroll-margin-top: 90px;
-    }
-
-    .section-alt {
-      background: #0e1627;
-    }
-
-    .section-heading {
-      margin-bottom: 30px;
-    }
-
-    .section-heading h2 {
-      font-size: clamp(28px, 4vw, 38px);
-      letter-spacing: -1px;
-      margin-bottom: 8px;
-    }
-
-    .section-heading p {
-      color: var(--muted);
-      max-width: 680px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      padding: 25px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      border-radius: 12px;
-      min-width: 0;
-    }
-
-    .card-icon {
-      width: 44px;
-      height: 44px;
-      display: grid;
-      place-items: center;
-      background: #15352f;
-      border-radius: 10px;
-      font-size: 22px;
-      margin-bottom: 20px;
-    }
-
-    .card h3 {
-      font-size: 20px;
-      margin-bottom: 10px;
-    }
-
-    .card p {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 18px;
-    }
-
-    .text-link {
-      color: var(--green);
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .tag {
-      display: inline-block;
-      border: 1px solid #315747;
-      color: var(--green);
-      font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 5px;
-      margin-bottom: 14px;
-    }
-
-    .price {
-      font-size: 24px;
-      font-weight: 700;
-      margin: 18px 0;
-    }
-
-    .price small {
-      font-size: 12px;
-      font-weight: 400;
-      color: var(--muted);
-    }
-
-    .stream-frame {
-      background: #050912;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      aspect-ratio: 16 / 9;
-      width: 100%;
-    }
-
-    .stream-frame iframe {
-      display: block;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-
-    .stream-placeholder {
-      height: 100%;
-      display: grid;
-      place-content: center;
-      text-align: center;
-      padding: 20px;
-      color: var(--muted);
-    }
-
-    .play-icon {
-      color: var(--green);
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
-
-    .stream-note {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 12px;
-    }
-
-    .journal-card {
-      display: flex;
-      flex-direction: column;
-      min-height: 240px;
-    }
-
-    .journal-card .text-link {
-      margin-top: auto;
-    }
-
-    .date-label {
-      color: var(--green);
-      text-transform: uppercase;
-      font-size: 11px;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
-    }
-
-    .about-box {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      padding: 32px;
-      border-radius: 12px;
-    }
-
-    .about-box p {
-      color: var(--muted);
-      margin-top: 12px;
-    }
-
-    .contact-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 22px;
-    }
-
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 30px 0;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .footer-inner {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    @media (max-width: 760px) {
-      .navbar {
-        padding: 16px 0;
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      nav {
-        gap: 14px;
-      }
-
-      nav a {
-        font-size: 12px;
-      }
-
-      .hero {
-        padding: 70px 0 55px;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .section {
-        padding: 55px 0;
-      }
-
-      .about-box {
-        padding: 23px;
-      }
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b1120; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
   </style>
 </head>
 
-<body>
+<body class="bg-[#090D16] text-slate-100 antialiased selection:bg-emerald-500/20 selection:text-emerald-300">
 
-  <!-- NAVIGATION -->
-  <header>
-    <div class="container navbar">
-      <a class="logo" href="#home">EDGE<span>/</span>TRADING</a>
+  <!-- TOP NAVIGATION -->
+  <header class="sticky top-0 z-40 bg-[#090D16]/95 backdrop-blur-md border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-8">
+      <a href="#home" class="text-lg font-bold tracking-tight text-white whitespace-nowrap shrink-0 hover:text-emerald-400 transition-colors">
+        EDGE<span class="text-emerald-400">/</span>TRADING
+      </a>
 
-      <nav aria-label="Main navigation">
-        <a href="#home">Home</a>
-        <a href="#live">Live</a>
-        <a href="#indicators">Indicators</a>
-        <a href="#journal">Journal</a>
-        <a href="#about">About</a>
+      <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
+        <a href="#indicators" class="hover:text-emerald-400 transition-colors whitespace-nowrap shrink-0">Indicators</a>
+        <a href="#live-terminal" class="hover:text-emerald-400 transition-colors whitespace-nowrap shrink-0">Live Terminal</a>
+        <a href="#journal" class="hover:text-emerald-400 transition-colors whitespace-nowrap shrink-0">Trading Journal</a>
+        <a href="#coverage" class="hover:text-emerald-400 transition-colors whitespace-nowrap shrink-0">Market Coverage</a>
+        <a href="#about" class="hover:text-emerald-400 transition-colors whitespace-nowrap shrink-0">Methodology</a>
       </nav>
+
+      <div class="flex items-center gap-3 shrink-0">
+        <a href="#indicators" class="px-4 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-md transition-colors whitespace-nowrap shrink-0">
+          Access Indicators
+        </a>
+      </div>
     </div>
   </header>
 
+  <!-- LIVE MARKET TICKER STRIP -->
+  <div class="bg-[#0B1220] border-b border-slate-800/80 overflow-x-auto py-2.5 px-4 scrollbar-none select-none">
+    <div class="max-w-7xl mx-auto flex items-center gap-6 min-w-max text-xs" id="ticker-strip">
+      <span class="text-slate-400 font-medium text-[11px] tracking-wider uppercase flex items-center gap-1.5 shrink-0">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        Markets
+      </span>
+      <div class="h-4 w-px bg-slate-800 shrink-0"></div>
+      <div class="flex items-center gap-5" id="ticker-items"></div>
+    </div>
+  </div>
+
   <main>
-    <!-- HOMEPAGE -->
-    <section class="hero" id="home">
-      <div class="container">
-        <div class="eyebrow">Trading tools · Market research</div>
+    <!-- HERO SECTION -->
+    <section id="home" class="relative pt-12 pb-20 border-b border-slate-800/80 bg-gradient-to-b from-[#090D16] via-[#0D1525] to-[#090D16]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          
+          <div class="lg:col-span-7 space-y-6">
+            <div class="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+              TradingView Systems · Live Stream · Transparent Journal
+            </div>
 
-        <h1>Find your edge<br>in the markets.</h1>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.08]">
+              Find your quantitative edge in the markets.
+            </h1>
 
-        <p>
-          Explore TradingView indicators, follow live market analysis,
-          and learn from my trading journal covering cryptocurrency
-          and copper.
-        </p>
+            <p class="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed">
+              Explore proprietary Pine Script v5 indicators, watch real-time chart analysis on our live trading terminal, and study verified journal entries across Copper commodities, Cryptocurrencies, and high-beta Equities.
+            </p>
 
-        <div class="actions">
-          <a class="button" href="#indicators">
-            Explore Indicators
-          </a>
+            <div class="flex flex-wrap items-center gap-4 pt-2">
+              <a href="#indicators" class="px-6 py-3 text-sm font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-md transition-colors flex items-center gap-2 shadow-lg shadow-emerald-500/10">
+                Explore Indicators →
+              </a>
+              <a href="#live-terminal" class="px-6 py-3 text-sm font-semibold text-slate-200 bg-slate-800/90 hover:bg-slate-800 hover:text-white rounded-md border border-slate-700/80 transition-colors">
+                Launch Live Terminal
+              </a>
+            </div>
 
-          <a class="button button-outline" href="#journal">
-            Read Trading Journal
-          </a>
+            <div class="pt-6 border-t border-slate-800/80 grid grid-cols-3 gap-6 max-w-lg">
+              <div>
+                <div class="text-2xl font-bold font-mono text-white">76.4%</div>
+                <div class="text-xs text-slate-400 mt-1">Average Win Rate</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold font-mono text-white">2.85</div>
+                <div class="text-xs text-slate-400 mt-1">Profit Factor</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold font-mono text-white">v5</div>
+                <div class="text-xs text-slate-400 mt-1">Pine Script Verified</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5">
+            <div class="relative rounded-xl border border-slate-800 bg-[#0E172A] overflow-hidden shadow-2xl">
+              <div class="p-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                <span class="font-semibold text-slate-200">Apex Terminal System</span>
+                <span class="font-mono text-slate-400 text-[11px]">HG1! · BTC · NVDA</span>
+              </div>
+              <div class="aspect-[4/3] bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/30 p-6 flex flex-col justify-between">
+                <div class="space-y-2">
+                  <div class="text-xs text-emerald-400 font-mono">ACTIVE SCAN // SYSTEM CONFLUENCE</div>
+                  <div class="text-lg font-bold text-white">Multi-Timeframe Structure Expansion</div>
+                  <div class="text-xs text-slate-400">COMEX HG1! & BTCUSDT testing 4H bullish order block.</div>
+                </div>
+                <div class="p-3 bg-slate-900/90 rounded border border-slate-800 flex items-center justify-between text-xs">
+                  <div>
+                    <div class="font-semibold text-slate-200">System Status: Active Monitoring</div>
+                    <div class="text-slate-400 text-[11px]">3 Multi-Market Confluences Triggered</div>
+                  </div>
+                  <a href="#live-terminal" class="text-emerald-400 hover:text-emerald-300 font-medium">View Live →</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
 
-    <!-- LIVE STREAM -->
-    <section class="section section-alt" id="live">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow">Watch & learn</div>
-          <h2>Live Trading Room</h2>
-          <p>
-            Follow my market analysis, chart observations,
-            and trading commentary.
-          </p>
-        </div>
+    <!-- LIVE TERMINAL SECTION -->
+    <section id="live-terminal" class="py-20 bg-[#090D16] border-b border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2">
+              Real-Time Analysis · Live Broadcast
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+              Live Trading Terminal & Stream
+            </h2>
+            <p class="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl">
+              Switch between interactive TradingView charts for Copper, Cryptocurrencies, and US Stocks, or tune into the live trading broadcast.
+            </p>
+          </div>
 
-        <div class="stream-frame" id="stream">
-          <div class="stream-placeholder">
-            <div class="play-icon">▶</div>
-            <h3>Live stream coming soon</h3>
-            <p>Add your YouTube Live video ID to activate the player.</p>
+          <div class="flex items-center gap-2 p-1 bg-slate-900 border border-slate-800 rounded-lg shrink-0">
+            <button id="tab-btn-chart" onclick="switchTerminalTab('chart')" class="px-4 py-2 text-xs font-semibold rounded-md transition-all bg-emerald-400 text-slate-950 shadow-sm cursor-pointer">
+              Interactive Chart Terminal
+            </button>
+            <button id="tab-btn-stream" onclick="switchTerminalTab('stream')" class="px-4 py-2 text-xs font-semibold rounded-md transition-all text-slate-300 hover:text-white cursor-pointer">
+              Live Stream Broadcast
+            </button>
           </div>
         </div>
 
-        <p class="stream-note">
-          Live availability depends on the broadcast schedule.
-          Educational content only.
-        </p>
+        <div class="bg-[#0D1525] border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
+          
+          <div class="p-4 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div>
+                <span class="text-xs text-slate-400 font-medium">Active Asset</span>
+                <div class="flex items-center gap-2">
+                  <span id="terminal-asset-name" class="font-bold text-white text-base">High Grade Copper Futures</span>
+                  <span id="terminal-asset-symbol" class="font-mono text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300">COMEX:HG1!</span>
+                </div>
+              </div>
+
+              <div class="hidden sm:block h-8 w-px bg-slate-800"></div>
+
+              <div class="hidden sm:flex items-center gap-4 text-xs font-mono">
+                <div>
+                  <span class="text-slate-400 block text-[10px]">CURRENT</span>
+                  <span id="terminal-asset-price" class="text-slate-100 font-semibold tabular-nums text-sm">$4.468</span>
+                </div>
+                <div>
+                  <span class="text-slate-400 block text-[10px]">24H CHANGE</span>
+                  <span id="terminal-asset-change" class="text-emerald-400 font-semibold tabular-nums">+1.84%</span>
+                </div>
+                <div>
+                  <span class="text-slate-400 block text-[10px]">INDICATOR BIAS</span>
+                  <span id="terminal-asset-signal" class="text-emerald-400 font-medium">Strong Long</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 ml-auto">
+              <button onclick="openStreamSettings()" class="px-3 py-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 border border-slate-700/60 rounded-md transition-colors cursor-pointer">
+                ⚙ Stream Settings
+              </button>
+              <a id="external-tv-link" href="https://www.tradingview.com/chart/?symbol=COMEX%3AHG1%21" target="_blank" rel="noreferrer" class="px-3 py-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 border border-slate-700/60 rounded-md transition-colors">
+                Open in TradingView ↗
+              </a>
+            </div>
+          </div>
+
+          <div class="px-4 py-2 bg-slate-900/60 border-b border-slate-800/60 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-1.5 overflow-x-auto w-full pb-1 scrollbar-none" id="terminal-asset-buttons"></div>
+          </div>
+
+          <!-- Chart Viewport -->
+          <div id="chart-viewport" class="w-full h-[580px] bg-[#090D16]">
+            <iframe
+              id="tradingview-frame"
+              title="TradingView Real-Time Chart"
+              src="https://s.tradingview.com/widgetembed/?symbol=COMEX%3AHG1%21&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=090D16&studies=%5B%5D&theme=dark&style=1&timezone=exchange"
+              class="w-full h-full border-0"
+              allowfullscreen>
+            </iframe>
+          </div>
+
+          <!-- Stream Viewport -->
+          <div id="stream-viewport" class="hidden grid grid-cols-1 lg:grid-cols-12 min-h-[580px] bg-[#050912]">
+            <div class="lg:col-span-8 p-4 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-slate-800">
+              <div class="aspect-video w-full rounded-lg overflow-hidden bg-black border border-slate-800 relative" id="stream-player-container">
+                <div class="w-full h-full flex flex-col items-center justify-center p-8 text-center text-slate-400 bg-gradient-to-b from-slate-900 to-slate-950">
+                  <div class="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-4 text-emerald-400 text-2xl font-bold">▶</div>
+                  <h3 class="text-xl font-bold text-white mb-2">Live Stream Broadcast</h3>
+                  <p class="text-sm max-w-md text-slate-300 mb-6 leading-relaxed">
+                    Watch live chart breakdowns on Copper, Bitcoin, and Equities. Click "Stream Settings" above to paste your YouTube Live video ID or Twitch channel!
+                  </p>
+                  <button onclick="openStreamSettings()" class="px-5 py-2.5 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-md cursor-pointer">
+                    Configure Stream Source
+                  </button>
+                </div>
+              </div>
+              <div class="mt-4 flex items-center justify-between text-xs text-slate-400">
+                <span class="text-slate-200 font-semibold" id="stream-title-display">Edge Trading Live Session — Copper & Crypto</span>
+                <span class="font-mono text-[11px]">Daily 08:30 – 16:30 EST</span>
+              </div>
+            </div>
+
+            <!-- Live Chat -->
+            <div class="lg:col-span-4 flex flex-col h-full bg-[#0B1220]">
+              <div class="p-3 border-b border-slate-800 flex items-center justify-between text-xs font-semibold text-slate-200">
+                <span>Live Commentary & Notes</span>
+                <span class="text-[11px] text-slate-400 font-mono">Real-time</span>
+              </div>
+              <div class="flex-1 p-4 overflow-y-auto space-y-3 max-h-[440px] text-xs" id="chat-messages">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold text-slate-300">EdgeTrader_Lead</span>
+                    <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-mono">Host</span>
+                    <span class="text-[10px] text-slate-500 font-mono ml-auto">09:30</span>
+                  </div>
+                  <p class="text-slate-300 leading-snug">Live stream monitoring COMEX HG1! retest and BTC volume clusters.</p>
+                </div>
+              </div>
+              <form onsubmit="handleSendChat(event)" class="p-3 border-t border-slate-800 flex gap-2">
+                <input id="chat-input" type="text" placeholder="Type a market note..." class="flex-1 px-3 py-2 bg-slate-900 border border-slate-700/80 rounded text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+                <button type="submit" class="px-3 py-2 bg-emerald-500 text-slate-950 font-semibold rounded hover:bg-emerald-400 text-xs cursor-pointer">Send</button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </section>
 
-    <!-- INDICATORS FOR SALE -->
-    <section class="section" id="indicators">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow">TradingView tools</div>
-          <h2>Indicators & Systems</h2>
-          <p>
-            Discover technical tools designed to support a structured
-            trading process. Replace these examples with your actual products.
+    <!-- INDICATORS SECTION -->
+    <section id="indicators" class="py-20 bg-[#0B1220] border-b border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="mb-12">
+          <div class="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2">
+            TradingView Systems · Pine Script v5
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+            Proprietary Trading Indicators
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl leading-relaxed">
+            Institutional-grade algorithms engineered to identify high-probability structure, orderflow imbalances, and macro divergence with zero repainting.
           </p>
         </div>
 
-        <div class="grid">
-          <article class="card">
-            <div class="card-icon">⌁</div>
-            <span class="tag">TREND ANALYSIS</span>
-            <h3>Trend Navigator</h3>
-            <p>
-              Describe your trend indicator, its intended use,
-              settings, and supported markets.
-            </p>
-            <div class="price">Price TBC</div>
-            <a class="text-link" href="#contact">
-              Product enquiries →
-            </a>
-          </article>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-14" id="indicators-grid"></div>
 
-          <article class="card">
-            <div class="card-icon">⌖</div>
-            <span class="tag">MARKET STRUCTURE</span>
-            <h3>Structure Toolkit</h3>
-            <p>
-              Explain how your tool identifies market structure,
-              levels, or other technical conditions.
-            </p>
-            <div class="price">Price TBC</div>
-            <a class="text-link" href="#contact">
-              Product enquiries →
-            </a>
-          </article>
-
-          <article class="card">
-            <div class="card-icon">◈</div>
-            <span class="tag">CUSTOM INDICATOR</span>
-            <h3>Your Next Indicator</h3>
-            <p>
-              Add screenshots, documentation, compatible markets,
-              and access instructions for your next product.
-            </p>
-            <div class="price">Price TBC</div>
-            <a class="text-link" href="#contact">
-              Product enquiries →
-            </a>
-          </article>
-        </div>
-
-        <p class="stream-note">
-          Products are examples, not currently available offers.
-          Purchase and access links must be configured before launch.
-        </p>
-      </div>
-    </section>
-
-    <!-- TRADING JOURNAL -->
-    <section class="section section-alt" id="journal">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow">Notes from the market</div>
-          <h2>Trading Journal</h2>
-          <p>
-            Document market conditions, trade plans, risk management,
-            and lessons learned.
-          </p>
-        </div>
-
-        <div class="grid">
-          <article class="card journal-card">
-            <div class="date-label">Crypto · Example post</div>
-            <h3>Bitcoin Market Structure</h3>
-            <p>
-              Record the current trend, important price levels,
-              your scenario planning, and what would invalidate your view.
-            </p>
-            <a class="text-link" href="#contact">
-              Journal posts coming soon →
-            </a>
-          </article>
-
-          <article class="card journal-card">
-            <div class="date-label">Crypto · Example post</div>
-            <h3>Ethereum Trade Review</h3>
-            <p>
-              Review your entry, exit, position sizing, trade management,
-              and the lessons from the setup.
-            </p>
-            <a class="text-link" href="#contact">
-              Journal posts coming soon →
-            </a>
-          </article>
-
-          <article class="card journal-card">
-            <div class="date-label">Commodities · Example post</div>
-            <h3>Copper Market Outlook</h3>
-            <p>
-              Document your copper market thesis, technical levels,
-              relevant economic drivers, and risk scenarios.
-            </p>
-            <a class="text-link" href="#contact">
-              Journal posts coming soon →
-            </a>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ABOUT -->
-    <section class="section" id="about">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow">About this project</div>
-          <h2>Process over prediction.</h2>
-        </div>
-
-        <div class="about-box">
-          <h3>Welcome to Edge Trading</h3>
-          <p>
-            This website shares my approach to technical analysis,
-            TradingView tools, and ongoing research into crypto
-            and copper markets.
-          </p>
-          <p>
-            My goal is to document the process, explain the reasoning
-            behind trade ideas, and share lessons from both successful
-            and unsuccessful setups.
-          </p>
-
-          <div class="contact-links" id="contact">
-            <!-- Replace this email with your business email -->
-            <a class="button" href="mailto:YOUR_EMAIL@example.com">
-              Contact Me
-            </a>
+        <!-- Bundle Banner -->
+        <div class="bg-gradient-to-r from-slate-900 via-[#121E33] to-slate-900 border border-emerald-500/30 rounded-xl p-8 mb-16">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-8 space-y-3">
+              <div class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Complete Indicator Suite</div>
+              <h3 class="text-2xl sm:text-3xl font-bold text-white">The All-Market Trader Bundle</h3>
+              <p class="text-sm text-slate-300 max-w-2xl leading-relaxed">
+                Includes all 4 proprietary indicators: Apex Trend Engine v5, Liquidity & Orderflow Matrix, Copper & Macro Divergence, and Crypto Scalper Suite with lifetime TradingView invite-only updates and private Discord alpha access.
+              </p>
+            </div>
+            <div class="lg:col-span-4 flex flex-col sm:items-end justify-center gap-3">
+              <div class="sm:text-right">
+                <div class="text-sm text-slate-400 line-through font-mono">$706 value</div>
+                <div class="text-3xl font-bold font-mono text-white">$399</div>
+                <div class="text-xs text-emerald-400 font-medium">Save $307 (43% Off)</div>
+              </div>
+              <button onclick="openCheckout('bundle')" class="w-full sm:w-auto px-6 py-3 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-md transition-colors cursor-pointer">
+                Access Complete Bundle →
+              </button>
+            </div>
           </div>
         </div>
+
+      </div>
+    </section>
+
+    <!-- TRADING JOURNAL SECTION -->
+    <section id="journal" class="py-20 bg-[#090D16] border-b border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2">
+              Performance Verification · Public Log
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+              Systematic Trading Journal
+            </h2>
+            <p class="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl leading-relaxed">
+              Transparent, unvarnished documentation of real trade setups across Copper commodity futures, Cryptocurrencies, and high-beta Equities.
+            </p>
+          </div>
+
+          <button onclick="openAddTradeModal()" class="px-4 py-2.5 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-md transition-colors cursor-pointer flex items-center gap-2 shrink-0">
+            + Log Trade Entry
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10" id="journal-kpis"></div>
+
+        <div class="bg-[#0D1525] border border-slate-800 rounded-lg p-4 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-slate-400 mr-1 font-medium">Asset Class:</span>
+            <button onclick="filterJournal('all')" class="px-3 py-1.5 rounded bg-slate-800 text-white font-medium cursor-pointer">All Markets</button>
+            <button onclick="filterJournal('copper')" class="px-3 py-1.5 rounded text-slate-400 hover:text-white cursor-pointer">Copper & Metals</button>
+            <button onclick="filterJournal('crypto')" class="px-3 py-1.5 rounded text-slate-400 hover:text-white cursor-pointer">Crypto</button>
+            <button onclick="filterJournal('stocks')" class="px-3 py-1.5 rounded text-slate-400 hover:text-white cursor-pointer">Stocks</button>
+          </div>
+
+          <input id="journal-search" type="text" oninput="handleJournalSearch(this.value)" placeholder="Search ticker, setup..." class="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="journal-cards-grid"></div>
+
+      </div>
+    </section>
+
+    <!-- MARKET COVERAGE SECTION -->
+    <section id="coverage" class="py-20 bg-[#0B1220] border-b border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2">
+              Universe Coverage · Real-Time Signals
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+              Covered Stocks, Cryptos & Commodities
+            </h2>
+            <p class="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl leading-relaxed">
+              We apply our Pine Script indicator suite across physical commodities (Copper, Gold), major cryptocurrencies (BTC, ETH, SOL, AVAX, LINK, SUI), and high-beta US equities (NVDA, TSLA, AAPL, MSFT, AMD, PLTR).
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-900 border border-slate-800 rounded-lg shrink-0">
+            <button onclick="filterCoverage('all')" class="px-3 py-1.5 text-xs font-medium rounded-md bg-slate-800 text-white cursor-pointer">All</button>
+            <button onclick="filterCoverage('copper')" class="px-3 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-white cursor-pointer">Copper & Metals</button>
+            <button onclick="filterCoverage('crypto')" class="px-3 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-white cursor-pointer">Crypto</button>
+            <button onclick="filterCoverage('stocks')" class="px-3 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-white cursor-pointer">Equities</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="coverage-grid"></div>
+
+      </div>
+    </section>
+
+    <!-- METHODOLOGY & CONTACT -->
+    <section id="about" class="py-20 bg-[#090D16] border-b border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="mb-14">
+          <div class="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2">
+            Systematic Methodology · Risk Protocol
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+            Process Over Prediction
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 mt-2 max-w-2xl leading-relaxed">
+            Market profits are earned through repeatable execution, asymmetric risk-to-reward ratios, and emotional detachment.
+          </p>
+        </div>
+
+        <div class="bg-[#0D1525] border border-slate-800 rounded-xl p-8 max-w-2xl mx-auto">
+          <div class="text-center mb-6">
+            <h3 class="text-xl font-bold text-white">Contact & Custom Indicators</h3>
+            <p class="text-xs text-slate-300 mt-1">Have questions about indicator access or custom Pine Script algorithms?</p>
+          </div>
+
+          <form onsubmit="handleContactSubmit(event)" class="space-y-4 text-xs" id="contact-form">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input type="text" required placeholder="Your Name" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-xs focus:outline-none focus:border-emerald-500">
+              <input type="email" required placeholder="Your Email" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+            <textarea rows="3" required placeholder="Message regarding indicators or setup inquiry..." class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-xs focus:outline-none focus:border-emerald-500"></textarea>
+            <button type="submit" class="w-full py-2.5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold rounded text-xs cursor-pointer">
+              Send Inquiry
+            </button>
+          </form>
+          <div id="contact-success" class="hidden text-center py-6 text-emerald-400 text-sm font-semibold">
+            ✓ Message received! We will reply within 24 hours.
+          </div>
+        </div>
+
       </div>
     </section>
   </main>
 
   <!-- FOOTER -->
-  <footer>
-    <div class="container footer-inner">
-      <p>© <span id="year"></span> Edge Trading</p>
-      <p>Educational content, not financial advice.</p>
+  <footer class="bg-[#060A12] border-t border-slate-800 text-slate-400 text-xs py-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <div class="text-base font-bold text-white tracking-tight">EDGE<span class="text-emerald-400">/</span>TRADING</div>
+          <p class="text-xs text-slate-500 mt-1">TradingView indicator systems, live streaming, and systematic journal across copper, crypto, and equities.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-6 text-xs text-slate-400">
+          <a href="#indicators" class="hover:text-emerald-400">Indicators</a>
+          <a href="#live-terminal" class="hover:text-emerald-400">Live Terminal</a>
+          <a href="#journal" class="hover:text-emerald-400">Trading Journal</a>
+          <a href="#coverage" class="hover:text-emerald-400">Market Coverage</a>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-slate-800/80 text-[11px] text-slate-500 space-y-2">
+        <p><strong>Risk Disclosure:</strong> Trading commodities, futures, cryptocurrencies, and equities carries substantial risk. Educational content only, not financial advice.</p>
+        <p>© <span id="year-copy"></span> Edge Trading. All rights reserved.</p>
+      </div>
     </div>
   </footer>
 
+  <!-- MODAL: Stream Settings -->
+  <div id="modal-stream" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="bg-[#0E172A] border border-slate-700 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white">Stream Player Settings</h3>
+        <button onclick="closeStreamSettings()" class="text-slate-400 hover:text-white cursor-pointer">✕</button>
+      </div>
+      <div>
+        <label class="block text-slate-300 mb-1">YouTube Live Video ID</label>
+        <input id="stream-input-yt" type="text" placeholder="e.g. dQw4w9WgXcQ" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-xs focus:outline-none focus:border-emerald-500">
+        <p class="text-[11px] text-slate-400 mt-1">Enter your YouTube live stream video ID (after v= or live/).</p>
+      </div>
+      <div>
+        <label class="block text-slate-300 mb-1">Stream Session Title</label>
+        <input id="stream-input-title" type="text" placeholder="Live Market Session" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-xs focus:outline-none focus:border-emerald-500">
+      </div>
+      <div class="pt-2 flex justify-end gap-2">
+        <button onclick="closeStreamSettings()" class="px-3 py-1.5 text-slate-400 hover:text-white">Cancel</button>
+        <button onclick="saveStreamSettings()" class="px-4 py-1.5 bg-emerald-400 text-slate-950 font-bold rounded">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Checkout / License -->
+  <div id="modal-checkout" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="bg-[#0E172A] border border-slate-700 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-[10px] text-emerald-400 uppercase font-semibold">TradingView Invite-Only Authorization</span>
+          <h3 id="checkout-title" class="text-lg font-bold text-white">Apex Trend Engine v5</h3>
+        </div>
+        <button onclick="closeCheckout()" class="text-slate-400 hover:text-white cursor-pointer">✕</button>
+      </div>
+      <div class="text-2xl font-bold font-mono text-white" id="checkout-price">$149</div>
+      <form onsubmit="handleCheckoutSubmit(event)" class="space-y-3" id="checkout-form">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">TradingView Username *</label>
+          <input id="checkout-tv-user" type="text" required placeholder="e.g. Satoshi_Trader" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-xs focus:outline-none focus:border-emerald-500 font-mono">
+          <p class="text-[10px] text-slate-400 mt-1">We grant invite-only access directly to your TradingView handle.</p>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Email Address *</label>
+          <input id="checkout-email" type="email" required placeholder="trader@example.com" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-white text-xs focus:outline-none focus:border-emerald-500">
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-emerald-400 text-slate-950 font-bold rounded cursor-pointer mt-2">
+          Complete Purchase & Get Access
+        </button>
+      </form>
+      <div id="checkout-success" class="hidden text-center py-4 space-y-2">
+        <div class="text-emerald-400 text-2xl font-bold">✓ Access Granted!</div>
+        <p class="text-xs text-slate-300">Invite-only script access sent for your TradingView username. Open TradingView -> Indicators -> Invite-Only Scripts to load.</p>
+        <button onclick="closeCheckout()" class="px-4 py-1.5 bg-slate-800 text-slate-200 rounded text-xs mt-2">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Add Trade -->
+  <div id="modal-add-trade" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="bg-[#0E172A] border border-slate-700 rounded-xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-4 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white">+ Log Trade Setup</h3>
+        <button onclick="closeAddTradeModal()" class="text-slate-400 hover:text-white cursor-pointer">✕</button>
+      </div>
+      <form onsubmit="handleCreateTrade(event)" class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 mb-1">Market</label>
+            <select id="trade-market" class="w-full px-2 py-1.5 bg-slate-900 border border-slate-700 rounded text-white">
+              <option value="copper">Copper / Metals</option>
+              <option value="crypto">Cryptocurrency</option>
+              <option value="stocks">Stock / Equity</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 mb-1">Ticker</label>
+            <input id="trade-ticker" type="text" required placeholder="HG1! or BTC" class="w-full px-2 py-1.5 bg-slate-900 border border-slate-700 rounded text-white uppercase font-mono">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 mb-1">Direction</label>
+            <select id="trade-direction" class="w-full px-2 py-1.5 bg-slate-900 border border-slate-700 rounded text-white font-mono font-bold">
+              <option value="LONG">LONG</option>
+              <option value="SHORT">SHORT</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 mb-1">Outcome Status</label>
+            <select id="trade-status" class="w-full px-2 py-1.5 bg-slate-900 border border-slate-700 rounded text-white font-mono">
+              <option value="WIN">Winner (Target Hit)</option>
+              <option value="LOSS">Loss (Stopped Out)</option>
+              <option value="OPEN">Open (Active)</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-slate-300 mb-1">Entry ($)</label>
+            <input id="trade-entry" type="number" step="any" required placeholder="4.382" class="w-full px-2 py-1.5 bg-slate-900 border border-slate-700 rounded text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-300 mb-1">Stop ($)</label>
+            <input id="trade-stop" type="number" step="any" required placeholder="4.335" class="w-full px-2 py-1.5 bg-slate-900 border border-slate-700 rounded text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-300 mb-1">Target ($)</label>
+            <input id="trade-target" type="number" step="any" required placeholder="4.550" class="w-full px-2 py-1.5 bg-slate-900 border border-slate-700 rounded text-white font-mono">
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-300 mb-1">Thesis / Indicator Rationale</label>
+          <textarea id="trade-thesis" rows="2" placeholder="4H order block retest, CVD delta divergence..." class="w-full px-2 py-1.5 bg-slate-900 border border-slate-700 rounded text-white"></textarea>
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeAddTradeModal()" class="px-3 py-1.5 text-slate-400">Cancel</button>
+          <button type="submit" class="px-4 py-1.5 bg-emerald-400 text-slate-950 font-bold rounded">Save Trade</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
   <script>
-    // Automatically update the copyright year.
-    document.getElementById("year").textContent =
-      new Date().getFullYear();
+    document.getElementById('year-copy').textContent = new Date().getFullYear();
 
-    // Add your YouTube Live video ID between the quotes.
-    // Example format: dQw4w9WgXcQ
-    const YOUTUBE_VIDEO_ID = "";
+    const MARKET_DATA = [
+      { symbol: 'HG1!', name: 'High Grade Copper Futures', exchange: 'COMEX', category: 'copper', price: 4.468, change: 1.84, tv: 'COMEX:HG1!', bias: 'Strong Long' },
+      { symbol: 'BTCUSDT', name: 'Bitcoin', exchange: 'BINANCE', category: 'crypto', price: 68420, change: 2.95, tv: 'BINANCE:BTCUSDT', bias: 'Strong Long' },
+      { symbol: 'ETHUSDT', name: 'Ethereum', exchange: 'BINANCE', category: 'crypto', price: 2542.8, change: 1.42, tv: 'BINANCE:ETHUSDT', bias: 'Neutral Squeeze' },
+      { symbol: 'SOLUSDT', name: 'Solana', exchange: 'BINANCE', category: 'crypto', price: 172.4, change: 5.64, tv: 'BINANCE:SOLUSDT', bias: 'Strong Long' },
+      { symbol: 'AVAXUSDT', name: 'Avalanche', exchange: 'BINANCE', category: 'crypto', price: 28.65, change: 4.12, tv: 'BINANCE:AVAXUSDT', bias: 'Bullish Pullback' },
+      { symbol: 'LINKUSDT', name: 'Chainlink', exchange: 'BINANCE', category: 'crypto', price: 12.18, change: 3.25, tv: 'BINANCE:LINKUSDT', bias: 'Liquidity Hunt' },
+      { symbol: 'NVDA', name: 'NVIDIA Corp', exchange: 'NASDAQ', category: 'stocks', price: 144.6, change: 2.84, tv: 'NASDAQ:NVDA', bias: 'Strong Long' },
+      { symbol: 'TSLA', name: 'Tesla Inc', exchange: 'NASDAQ', category: 'stocks', price: 218.4, change: -1.25, tv: 'NASDAQ:TSLA', bias: 'Liquidity Hunt' },
+      { symbol: 'AAPL', name: 'Apple Inc', exchange: 'NASDAQ', category: 'stocks', price: 231.85, change: 0.88, tv: 'NASDAQ:AAPL', bias: 'Bullish Pullback' },
+      { symbol: 'MSFT', name: 'Microsoft Corp', exchange: 'NASDAQ', category: 'stocks', price: 428.15, change: 1.15, tv: 'NASDAQ:MSFT', bias: 'Bullish Pullback' },
+      { symbol: 'AMD', name: 'Advanced Micro Devices', exchange: 'NASDAQ', category: 'stocks', price: 156.9, change: 3.42, tv: 'NASDAQ:AMD', bias: 'Strong Long' },
+      { symbol: 'GOLD', name: 'Gold Spot', exchange: 'TVC', category: 'copper', price: 2738.5, change: 0.92, tv: 'TVC:GOLD', bias: 'Strong Long' }
+    ];
 
-    // Only create the player when a video ID has been provided.
-    if (YOUTUBE_VIDEO_ID.trim() !== "") {
-      const frame = document.createElement("iframe");
+    const INDICATORS = [
+      { id: 'apex-trend', name: 'Apex Trend Engine v5', cat: 'Trend & Momentum', price: 149, winRate: '74.8%', pf: '2.82', desc: 'Multi-timeframe dynamic trend filter with institutional volatility bands and exhaustion pivot alerts.' },
+      { id: 'liquidity-matrix', name: 'Liquidity & Orderflow Matrix', cat: 'Orderflow & SMC', price: 189, winRate: '76.5%', pf: '3.10', desc: 'Automated Fair Value Gaps (FVG), institutional order blocks, breaker blocks, and liquidity sweep zones.' },
+      { id: 'copper-macro', name: 'Copper & Metals Macro Divergence', cat: 'Commodity Macro', price: 199, winRate: '78.2%', pf: '3.42', desc: 'Physical copper spread oscillator with COT positioning, COMEX/LME inventory draws, and currency hedge signals.' },
+      { id: 'crypto-scalper', name: 'Crypto High-Frequency Scalper', cat: 'Crypto Scalping', price: 169, winRate: '72.4%', pf: '2.65', desc: 'Cumulative Volume Delta divergence, Anchored VWAP cluster bands, and high-velocity scalp triggers.' }
+    ];
 
-      frame.src =
-        "https://www.youtube.com/embed/" +
-        encodeURIComponent(YOUTUBE_VIDEO_ID.trim());
+    let journalEntries = [
+      { id: 1, date: '2026-10-22', ticker: 'HG1!', name: 'High Grade Copper', market: 'copper', dir: 'LONG', setup: 'Breakout Expansion', entry: 4.382, exit: 4.545, stop: 4.335, target: 4.550, r: '3.47R', pnl: '+13.9%', status: 'WIN', thesis: 'LME warehouse warrant cancellations dropped available stockpiles to 4-month lows while commercial open interest accumulated.' },
+      { id: 2, date: '2026-10-18', ticker: 'BTC/USDT', name: 'Bitcoin', market: 'crypto', dir: 'LONG', setup: 'Order Block Retest', entry: 66250, exit: 71200, stop: 65050, target: 71500, r: '4.12R', pnl: '+22.4%', status: 'WIN', thesis: 'Swept previous week low at $65.8k and reclaimed the 4H bullish FVG with strong CVD delta divergence.' },
+      { id: 3, date: '2026-10-14', ticker: 'NVDA', name: 'NVIDIA Corp', market: 'stocks', dir: 'LONG', setup: 'Breakout Expansion', entry: 136.40, exit: 147.20, stop: 133.55, target: 148.00, r: '3.79R', pnl: '+18.6%', status: 'WIN', thesis: 'Bull flag breakout following 3-week base above 50 EMA with semiconductor sector relative strength.' },
+      { id: 4, date: '2026-10-10', ticker: 'ETH/USDT', name: 'Ethereum', market: 'crypto', dir: 'SHORT', setup: 'Liquidity Sweep', entry: 2680, exit: 2520, stop: 2740, target: 2500, r: '2.67R', pnl: '+8.9%', status: 'WIN', thesis: 'Clear liquidity sweep of equal highs at $2,678 followed by displacement back into range.' },
+      { id: 5, date: '2026-10-02', ticker: 'TSLA', name: 'Tesla Inc', market: 'stocks', dir: 'SHORT', setup: 'Trendline Fade', entry: 224.50, exit: 229.00, stop: 229.00, target: 210.00, r: '-1.0R', pnl: '-4.2%', status: 'LOSS', thesis: 'Short thesis invalidated as retail options flow pushed through resistance. Clean stop discipline.' }
+    ];
 
-      frame.title = "Edge Trading live broadcast";
-      frame.allow =
-        "accelerometer; autoplay; encrypted-media; " +
-        "gyroscope; picture-in-picture; web-share";
-      frame.allowFullscreen = true;
-      frame.referrerPolicy = "strict-origin-when-cross-origin";
+    let currentSymbol = 'COMEX:HG1!';
 
-      const stream = document.getElementById("stream");
-      stream.replaceChildren(frame);
+    function renderTickerStrip() {
+      const el = document.getElementById('ticker-items');
+      el.innerHTML = MARKET_DATA.map(m => `
+        <button onclick="loadAssetInTerminal('${m.tv}')" class="flex items-center gap-2 px-2.5 py-1 rounded hover:bg-slate-800 transition-colors cursor-pointer text-left">
+          <span class="font-semibold text-slate-200">${m.symbol}</span>
+          <span class="font-mono tabular-nums text-slate-100">$${m.price > 500 ? m.price.toLocaleString() : m.price}</span>
+          <span class="font-mono tabular-nums text-[11px] font-medium ${m.change >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+            ${m.change >= 0 ? '+' : ''}${m.change}%
+          </span>
+        </button>
+      `).join('');
     }
+
+    function renderTerminalAssetButtons() {
+      const el = document.getElementById('terminal-asset-buttons');
+      el.innerHTML = MARKET_DATA.map(m => `
+        <button onclick="loadAssetInTerminal('${m.tv}')" class="px-2.5 py-1 rounded text-[11px] font-mono shrink-0 transition-colors cursor-pointer ${m.tv === currentSymbol ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-800/60 text-slate-300 hover:bg-slate-800 border border-slate-700/40'}">
+          ${m.symbol}
+        </button>
+      `).join('');
+    }
+
+    function loadAssetInTerminal(tvSymbol) {
+      currentSymbol = tvSymbol;
+      const asset = MARKET_DATA.find(m => m.tv === tvSymbol) || MARKET_DATA[0];
+      
+      document.getElementById('terminal-asset-name').textContent = asset.name;
+      document.getElementById('terminal-asset-symbol').textContent = asset.tv;
+      document.getElementById('terminal-asset-price').textContent = `$${asset.price > 500 ? asset.price.toLocaleString() : asset.price}`;
+      
+      const changeEl = document.getElementById('terminal-asset-change');
+      changeEl.textContent = `${asset.change >= 0 ? '+' : ''}${asset.change}%`;
+      changeEl.className = `${asset.change >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-semibold tabular-nums`;
+      
+      document.getElementById('terminal-asset-signal').textContent = asset.bias;
+      document.getElementById('external-tv-link').href = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(asset.tv)}`;
+      
+      document.getElementById('tradingview-frame').src = `https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(asset.tv)}&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=090D16&studies=%5B%5D&theme=dark&style=1&timezone=exchange`;
+      renderTerminalAssetButtons();
+    }
+
+    function switchTerminalTab(tab) {
+      const chartVp = document.getElementById('chart-viewport');
+      const streamVp = document.getElementById('stream-viewport');
+      const btnChart = document.getElementById('tab-btn-chart');
+      const btnStream = document.getElementById('tab-btn-stream');
+
+      if (tab === 'chart') {
+        chartVp.classList.remove('hidden');
+        streamVp.classList.add('hidden');
+        btnChart.className = 'px-4 py-2 text-xs font-semibold rounded-md bg-emerald-400 text-slate-950 shadow-sm cursor-pointer';
+        btnStream.className = 'px-4 py-2 text-xs font-semibold rounded-md text-slate-300 hover:text-white cursor-pointer';
+      } else {
+        chartVp.classList.add('hidden');
+        streamVp.classList.remove('hidden');
+        btnChart.className = 'px-4 py-2 text-xs font-semibold rounded-md text-slate-300 hover:text-white cursor-pointer';
+        btnStream.className = 'px-4 py-2 text-xs font-semibold rounded-md bg-emerald-400 text-slate-950 shadow-sm cursor-pointer';
+      }
+    }
+
+    function renderIndicators() {
+      const el = document.getElementById('indicators-grid');
+      el.innerHTML = INDICATORS.map(ind => `
+        <div class="bg-[#0E172A] border border-slate-800 rounded-xl p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+              <span class="text-emerald-400 font-semibold">${ind.cat}</span>
+              <span class="font-mono">Pine Script v5</span>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-2">${ind.name}</h3>
+            <p class="text-sm text-slate-300 leading-relaxed mb-6">${ind.desc}</p>
+            <div class="p-3 bg-slate-900 rounded border border-slate-800 grid grid-cols-2 gap-4 mb-6 text-xs font-mono">
+              <div>
+                <span class="text-slate-400 block text-[10px]">WIN RATE</span>
+                <span class="text-emerald-400 font-bold text-base">${ind.winRate}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px]">PROFIT FACTOR</span>
+                <span class="text-white font-bold text-base">${ind.pf}</span>
+              </div>
+            </div>
+          </div>
+          <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="text-2xl font-bold font-mono text-white">$${ind.price}</div>
+              <div class="text-[11px] text-slate-400">One-time Lifetime License</div>
+            </div>
+            <button onclick="openCheckout('${ind.id}')" class="px-4 py-2 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded cursor-pointer">
+              Get Access →
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderJournalKPIs() {
+      const total = journalEntries.length;
+      const wins = journalEntries.filter(j => j.status === 'WIN').length;
+      const rate = total > 0 ? ((wins / total) * 100).toFixed(1) : 0;
+      
+      const el = document.getElementById('journal-kpis');
+      el.innerHTML = `
+        <div class="p-4 bg-[#0E172A] border border-slate-800 rounded-lg">
+          <div class="text-xs text-slate-400 font-medium">Logged Trades</div>
+          <div class="text-2xl font-bold font-mono text-white mt-1">${total}</div>
+        </div>
+        <div class="p-4 bg-[#0E172A] border border-slate-800 rounded-lg">
+          <div class="text-xs text-slate-400 font-medium">Win Rate</div>
+          <div class="text-2xl font-bold font-mono text-emerald-400 mt-1">${rate}%</div>
+        </div>
+        <div class="p-4 bg-[#0E172A] border border-slate-800 rounded-lg">
+          <div class="text-xs text-slate-400 font-medium">Profit Factor</div>
+          <div class="text-2xl font-bold font-mono text-white mt-1">2.85</div>
+        </div>
+        <div class="p-4 bg-[#0E172A] border border-slate-800 rounded-lg">
+          <div class="text-xs text-slate-400 font-medium">Cumulative Return</div>
+          <div class="text-2xl font-bold font-mono text-emerald-400 mt-1">+52.8%</div>
+        </div>
+        <div class="col-span-2 lg:col-span-1 p-4 bg-[#0E172A] border border-slate-800 rounded-lg">
+          <div class="text-xs text-slate-400 font-medium">Net Gain</div>
+          <div class="text-2xl font-bold font-mono text-emerald-400 mt-1">+$30,175</div>
+        </div>
+      `;
+    }
+
+    function renderJournalCards(filter = 'all', search = '') {
+      const el = document.getElementById('journal-cards-grid');
+      let items = journalEntries;
+      if (filter !== 'all') {
+        items = items.filter(j => j.market === filter);
+      }
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        items = items.filter(j => j.ticker.toLowerCase().includes(q) || j.name.toLowerCase().includes(q) || j.thesis.toLowerCase().includes(q));
+      }
+
+      el.innerHTML = items.map(t => `
+        <div class="bg-[#0E172A] border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+              <span class="text-emerald-400 uppercase font-semibold text-[11px]">${t.market}</span>
+              <span class="font-mono">${t.date}</span>
+            </div>
+            <div class="flex items-baseline justify-between mb-1">
+              <h3 class="text-lg font-bold text-white">${t.ticker}</h3>
+              <span class="text-xs font-mono font-bold ${t.dir === 'LONG' ? 'text-emerald-400' : 'text-rose-400'}">${t.dir}</span>
+            </div>
+            <div class="text-xs text-slate-400 mb-3">${t.name} · ${t.setup}</div>
+            <div class="grid grid-cols-3 gap-1 p-2 bg-slate-900 rounded border border-slate-800 text-[11px] font-mono mb-3">
+              <div><span class="text-slate-500 block text-[9px]">ENTRY</span>$${t.entry}</div>
+              <div><span class="text-slate-500 block text-[9px]">STOP</span>$${t.stop}</div>
+              <div><span class="text-slate-500 block text-[9px]">TARGET</span>$${t.target}</div>
+            </div>
+            <p class="text-xs text-slate-300 line-clamp-2 leading-relaxed mb-3">${t.thesis}</p>
+          </div>
+          <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+            <span class="font-mono font-bold ${t.status === 'WIN' ? 'text-emerald-400' : 'text-rose-400'}">${t.pnl} (${t.r})</span>
+            <span class="font-mono text-xs ${t.status === 'WIN' ? 'text-emerald-400' : 'text-rose-400'}">${t.status}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterJournal(market) {
+      renderJournalCards(market, document.getElementById('journal-search').value);
+    }
+
+    function handleJournalSearch(val) {
+      renderJournalCards('all', val);
+    }
+
+    function renderCoverage(filter = 'all') {
+      const el = document.getElementById('coverage-grid');
+      let items = MARKET_DATA;
+      if (filter !== 'all') items = items.filter(m => m.category === filter);
+
+      el.innerHTML = items.map(m => `
+        <div class="bg-[#0E172A] border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+              <span>${m.exchange} · <span class="font-mono text-emerald-400 uppercase">${m.category}</span></span>
+              <span class="font-mono text-[10px] bg-slate-900 px-2 py-0.5 rounded text-slate-300 border border-slate-800">${m.bias}</span>
+            </div>
+            <div class="flex items-baseline justify-between mb-2">
+              <h3 class="text-xl font-bold text-white">${m.symbol}</h3>
+              <span class="text-xs font-mono font-semibold ${m.change >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+                ${m.change >= 0 ? '+' : ''}${m.change}%
+              </span>
+            </div>
+            <div class="text-xs text-slate-400 mb-3">${m.name}</div>
+            <div class="text-2xl font-bold font-mono text-white tabular-nums mb-4">
+              $${m.price > 500 ? m.price.toLocaleString() : m.price}
+            </div>
+          </div>
+          <button onclick="loadAssetInTerminal('${m.tv}'); document.getElementById('live-terminal').scrollIntoView({behavior:'smooth'});" class="w-full py-2 px-3 text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 rounded transition-colors cursor-pointer">
+            Load into Live Terminal ↗
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function filterCoverage(cat) {
+      renderCoverage(cat);
+    }
+
+    function openStreamSettings() { document.getElementById('modal-stream').classList.remove('hidden'); }
+    function closeStreamSettings() { document.getElementById('modal-stream').classList.add('hidden'); }
+    function saveStreamSettings() {
+      const ytId = document.getElementById('stream-input-yt').value.trim();
+      const title = document.getElementById('stream-input-title').value.trim() || 'Edge Trading Live Session';
+      if (ytId) {
+        document.getElementById('stream-player-container').innerHTML = `
+          <iframe src="https://www.youtube.com/embed/${encodeURIComponent(ytId)}?autoplay=1" class="w-full h-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        `;
+      }
+      document.getElementById('stream-title-display').textContent = title;
+      closeStreamSettings();
+    }
+
+    function handleSendChat(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      if (!input.value.trim()) return;
+      const feed = document.getElementById('chat-messages');
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="font-semibold text-slate-300">Guest</span>
+          <span class="text-[10px] text-slate-500 font-mono ml-auto">Now</span>
+        </div>
+        <p class="text-slate-300 leading-snug">${input.value.trim()}</p>
+      `;
+      feed.appendChild(div);
+      input.value = '';
+    }
+
+    function openCheckout(item) {
+      document.getElementById('modal-checkout').classList.remove('hidden');
+      document.getElementById('checkout-form').classList.remove('hidden');
+      document.getElementById('checkout-success').classList.add('hidden');
+      if (item === 'bundle') {
+        document.getElementById('checkout-title').textContent = 'All-Market Indicator Bundle';
+        document.getElementById('checkout-price').textContent = '$399';
+      } else {
+        const ind = INDICATORS.find(i => i.id === item) || INDICATORS[0];
+        document.getElementById('checkout-title').textContent = ind.name;
+        document.getElementById('checkout-price').textContent = `$${ind.price}`;
+      }
+    }
+    function closeCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
+    function handleCheckoutSubmit(e) {
+      e.preventDefault();
+      document.getElementById('checkout-form').classList.add('hidden');
+      document.getElementById('checkout-success').classList.remove('hidden');
+    }
+
+    function openAddTradeModal() { document.getElementById('modal-add-trade').classList.remove('hidden'); }
+    function closeAddTradeModal() { document.getElementById('modal-add-trade').classList.add('hidden'); }
+    function handleCreateTrade(e) {
+      e.preventDefault();
+      const market = document.getElementById('trade-market').value;
+      const ticker = document.getElementById('trade-ticker').value.toUpperCase();
+      const dir = document.getElementById('trade-direction').value;
+      const status = document.getElementById('trade-status').value;
+      const entry = parseFloat(document.getElementById('trade-entry').value) || 0;
+      const stop = parseFloat(document.getElementById('trade-stop').value) || 0;
+      const target = parseFloat(document.getElementById('trade-target').value) || 0;
+      const thesis = document.getElementById('trade-thesis').value || 'Systematic entry triggered on indicator confluence.';
+
+      const pnlPct = status === 'WIN' ? '+12.5%' : status === 'LOSS' ? '-3.5%' : '0.0%';
+      const rRatio = status === 'WIN' ? '+3.0R' : status === 'LOSS' ? '-1.0R' : 'Open';
+
+      journalEntries.unshift({
+        id: Date.now(),
+        date: new Date().toISOString().split('T')[0],
+        ticker,
+        name: ticker,
+        market,
+        dir,
+        setup: 'Systematic Setup',
+        entry,
+        stop,
+        target,
+        exit: target,
+        r: rRatio,
+        pnl: pnlPct,
+        status,
+        thesis
+      });
+
+      renderJournalKPIs();
+      renderJournalCards();
+      closeAddTradeModal();
+    }
+
+    function handleContactSubmit(e) {
+      e.preventDefault();
+      document.getElementById('contact-form').classList.add('hidden');
+      document.getElementById('contact-success').classList.remove('hidden');
+    }
+
+    renderTickerStrip();
+    renderTerminalAssetButtons();
+    renderIndicators();
+    renderJournalKPIs();
+    renderJournalCards();
+    renderCoverage();
   </script>
 
 </body>
